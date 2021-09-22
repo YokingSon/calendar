@@ -8,10 +8,28 @@
       <div class="triangle-right" @click="nextMonth"></div>
     </div>
     <el-calendar ref="calendar" :first-day-of-week="7" v-model="date">
-      <template #dateCell="{ date }">
-        <p class="calendar-item">
-          <span>{{ date.getDate() }}</span>
-        </p>
+      <template #dateCell="{ date, data }">
+        <div
+          class="mybackground"
+          :style="
+            isPast(data, date)
+              ? 'background:rgb(225, 245, 252)'
+              : 'background:transparent'
+          "
+        >
+          <div
+            class="triangle-topright"
+            v-if="isPlaned(data.day)"
+            :style="
+              data.isSelected
+                ? 'border-top: 15px solid rgb(255, 183, 0)'
+                : 'border-top: 15px solid rgb(14, 145, 248)'
+            "
+          ></div>
+          <p class="calendar-item">
+            <span>{{ date.getDate() }}</span>
+          </p>
+        </div>
       </template>
     </el-calendar>
   </div>
@@ -23,14 +41,14 @@ export default {
   data() {
     return {
       date: new Date(),
+      scheduleList: ["2021-09-21"],
     };
   },
   mounted() {
     this.$refs.calendar.$el.querySelector(".el-calendar__header").remove();
+    this.getScheduleList();
   },
-  computed: {
-    getDateStr() {},
-  },
+  computed: {},
   methods: {
     prefixInteger(num, n) {
       return (Array(n).join(0) + num).slice(-n);
@@ -40,6 +58,23 @@ export default {
     },
     nextMonth() {
       this.$refs.calendar.selectDate("next-month");
+    },
+    getScheduleList() {
+      let url = "/api/getScheduleList";
+      this.$axios
+        .get(url)
+        .then((response) => {
+          this.scheduleList = response.data.data.mtime;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    isPlaned(day) {
+      return this.scheduleList.includes(day);
+    },
+    isPast(data, date) {
+      return date < new Date() && data.type === "current-month";
     },
   },
 };
@@ -76,6 +111,14 @@ export default {
   border-left: 10px solid black;
   border-bottom: 5px solid transparent;
   cursor: pointer;
+}
+.triangle-topright {
+  float: right;
+  /* margin: -3px; */
+  width: 0;
+  height: 0;
+  /* border-top: 15px solid rgb(14, 145, 248); */
+  border-left: 15px solid transparent;
 }
 .mycalendar >>> .el-calendar-table thead th:before {
   content: "周";
@@ -116,8 +159,11 @@ export default {
 }
 
 .mycalendar >>> .el-calendar-table td.is-selected {
-  background-color: #acc8ec;
+  background-color: rgb(255, 238, 185);
   border: 2px solid #fff;
+}
+.mycalendar >>> .el-calendar-table td.is-today {
+  color: black;
 }
 
 .calendar-item {
@@ -126,5 +172,14 @@ export default {
   align-items: center;
   justify-content: center;
   font-style: normal;
+}
+.mybackground {
+  position: absolute;
+  transform: translateX(-3px) translateY(-3px);
+  width: 87px;
+  height: 50px;
+}
+.mybackground:hover {
+  background-color: #dadcdd;
 }
 </style>
