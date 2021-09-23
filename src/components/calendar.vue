@@ -9,27 +9,81 @@
     </div>
     <el-calendar ref="calendar" :first-day-of-week="7" v-model="date">
       <template #dateCell="{ date, data }">
-        <div
-          class="mybackground"
-          :style="
-            isPast(data, date)
-              ? 'background:rgb(225, 245, 252)'
-              : 'background:transparent'
-          "
-        >
+        <el-popover placement="top-start" title="" trigger="click">
+          <div v-if="isPlaned(data.day)" class="pop">
+            <div class="popitem">
+              <img src="@/assets/img/主题.png" />
+              <div class="name">主题</div>
+              <div class="value">关于xxxx管理制度的讨论会</div>
+            </div>
+            <div class="popitem">
+              <img src="@/assets/img/日期.png" />
+              <div class="name">日期</div>
+              <div class="value">2021-09-10 10:00</div>
+            </div>
+            <div class="popitem">
+              <img src="@/assets/img/备忘.png" />
+              <div class="name">备忘</div>
+              <div class="value">这是一个重要事项</div>
+            </div>
+          </div>
+          <div v-else>
+            <div class="popitem">
+              <img src="@/assets/img/主题.png" />
+              <div class="name">主题</div>
+              <el-input
+                placeholder="请输入主题"
+                v-model="input.theme"
+                clearable
+              >
+              </el-input>
+            </div>
+            <div class="popitem">
+              <img src="@/assets/img/日期.png" />
+              <div class="name">日期</div>
+              <el-date-picker
+                name="datetimePicker"
+                v-model="input.time"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                placeholder="请选择时间日期"
+                style="width: 100%"
+              >
+              </el-date-picker>
+            </div>
+            <div class="popitem">
+              <img src="@/assets/img/备忘.png" />
+              <div class="name">备忘</div>
+              <el-input
+                type="textarea"
+                autosize
+                placeholder="请输入备忘"
+                v-model="input.memo"
+                clearable
+              >
+              </el-input>
+            </div>
+          </div>
           <div
-            class="triangle-topright"
-            v-if="isPlaned(data.day)"
-            :style="
-              data.isSelected
-                ? 'border-top: 15px solid rgb(255, 183, 0)'
-                : 'border-top: 15px solid rgb(14, 145, 248)'
-            "
-          ></div>
-          <p class="calendar-item">
-            <span>{{ date.getDate() }}</span>
-          </p>
-        </div>
+            slot="reference"
+            class="mybackground"
+            :style="isPast(data, date)"
+          >
+            <div
+              class="triangle-topright"
+              v-if="isPlaned(data.day)"
+              :style="
+                data.isSelected
+                  ? 'border-top: 15px solid rgb(255, 183, 0)'
+                  : 'border-top: 15px solid rgb(14, 145, 248)'
+              "
+            ></div>
+            <p class="calendar-item">
+              <span>{{ date.getDate() }}</span>
+            </p>
+          </div>
+        </el-popover>
       </template>
     </el-calendar>
   </div>
@@ -42,10 +96,25 @@ export default {
     return {
       date: new Date(),
       scheduleList: ["2021-09-21"],
+      input: {
+        theme: "",
+        time: new Date(),
+        memo: "",
+      },
+      cellWidth: 0,
     };
   },
   mounted() {
     this.$refs.calendar.$el.querySelector(".el-calendar__header").remove();
+    window.onresize = () => {
+      this.cellWidth =
+        this.$refs.calendar.$el.querySelector(".el-calendar-day").offsetWidth +
+        "px";
+    };
+    this.cellWidth =
+      this.$refs.calendar.$el.querySelector(".el-calendar-day").offsetWidth +
+      "px";
+
     this.getScheduleList();
   },
   computed: {},
@@ -74,12 +143,28 @@ export default {
       return this.scheduleList.includes(day);
     },
     isPast(data, date) {
-      return date < new Date() && data.type === "current-month";
+      if (date < new Date() && data.type === "current-month") {
+        if (data.isSelected) {
+          return {
+            background: "rgb(255, 238, 185)",
+            width: this.cellWidth,
+          };
+        } else {
+          return {
+            background: "rgb(225, 245, 252)",
+            width: this.cellWidth,
+          };
+        }
+      } else {
+        return {
+          background: "transparent",
+          width: this.cellWidth,
+        };
+      }
     },
   },
 };
 </script>
-
 
 <style scoped>
 .mycalendar {
@@ -143,7 +228,8 @@ export default {
 }
 
 .mycalendar >>> .el-calendar-table .el-calendar-day:hover {
-  background-color: #dadcdd;
+  /* background-color: #dadcdd; */
+  background-color: transparent;
 }
 
 .mycalendar >>> .el-calendar-table td {
@@ -176,10 +262,30 @@ export default {
 .mybackground {
   position: absolute;
   transform: translateX(-3px) translateY(-3px);
-  width: 87px;
   height: 50px;
 }
-.mybackground:hover {
+/* .mybackground:hover {
   background-color: #dadcdd;
+} */
+.pop {
+  display: flex;
+  flex-direction: column;
+}
+.popitem {
+  display: flex;
+  padding: 2px 0;
+  align-items: center;
+}
+.name {
+  font-weight: bold;
+  width: 45px;
+}
+.value {
+  color: gray;
+}
+img {
+  height: 17px;
+  width: 15px;
+  margin-right: 5px;
 }
 </style>
