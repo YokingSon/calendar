@@ -79,9 +79,9 @@
                   : 'border-top: 15px solid rgb(14, 145, 248)'
               "
             ></div>
-            <p class="calendar-item">
+            <div class="calendar-item">
               <span>{{ date.getDate() }}</span>
-            </p>
+            </div>
           </div>
         </el-popover>
       </template>
@@ -102,6 +102,7 @@ export default {
         memo: "",
       },
       cellWidth: 0,
+      cellHeight: 0,
     };
   },
   mounted() {
@@ -110,9 +111,15 @@ export default {
       this.cellWidth =
         this.$refs.calendar.$el.querySelector(".el-calendar-day").offsetWidth +
         "px";
+      this.cellHeight =
+        this.$refs.calendar.$el.querySelector(".el-calendar-day").offsetHeight +
+        "px";
     };
     this.cellWidth =
       this.$refs.calendar.$el.querySelector(".el-calendar-day").offsetWidth +
+      "px";
+    this.cellHeight =
+      this.$refs.calendar.$el.querySelector(".el-calendar-day").offsetHeight +
       "px";
 
     this.getScheduleList();
@@ -148,17 +155,20 @@ export default {
           return {
             background: "rgb(255, 238, 185)",
             width: this.cellWidth,
+            height: this.cellHeight
           };
         } else {
           return {
             background: "rgb(225, 245, 252)",
             width: this.cellWidth,
+            height: this.cellHeight
           };
         }
       } else {
         return {
           background: "transparent",
           width: this.cellWidth,
+          height: this.cellHeight
         };
       }
     },
@@ -168,7 +178,8 @@ export default {
 
 <style scoped>
 .mycalendar {
-  width: 50%;
+  width: 400px;
+  height: 500px;
 }
 .header {
   display: flex;
@@ -198,55 +209,63 @@ export default {
   cursor: pointer;
 }
 .triangle-topright {
-  float: right;
-  /* margin: -3px; */
   width: 0;
   height: 0;
-  /* border-top: 15px solid rgb(14, 145, 248); */
   border-left: 15px solid transparent;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
+
+.mycalendar >>>.el-calendar{
+  height: 100%;
+}
+
+.mycalendar >>> .el-calendar__body{
+  padding: 0;
+  height: 100%;
+}
+
+.mycalendar >>> .el-calendar-table{
+  height: 100%;
+}
+
 .mycalendar >>> .el-calendar-table thead th:before {
   content: "周";
 }
 
-/* .mycalendar >>> .el-calendar {
-  background-color: rgb(21, 65, 90);
-} */
-
 .mycalendar >>> .el-calendar-table thead th {
   background: #dadcdd;
-  border: 2px solid #fff;
-  height: 15px;
+  border: 5px solid #fff;
   color: black;
   padding: 5px 0;
   font-weight: bold;
 }
 
 .mycalendar >>> .el-calendar-table .el-calendar-day {
-  height: 50px;
+  height: 100%;
   padding: 3px;
 }
 
 .mycalendar >>> .el-calendar-table .el-calendar-day:hover {
-  /* background-color: #dadcdd; */
   background-color: transparent;
 }
 
 .mycalendar >>> .el-calendar-table td {
-  border: 2px solid #fff;
+  border: 5px solid #fff;
 }
 
 .mycalendar >>> .el-calendar-table tr td:first-child {
-  border: 2px solid #fff;
+  border: 5px solid #fff;
 }
 
 .mycalendar >>> .el-calendar-table tr:first-child td {
-  border: 2px solid #fff;
+  border: 5px solid #fff;
 }
 
 .mycalendar >>> .el-calendar-table td.is-selected {
   background-color: rgb(255, 238, 185);
-  border: 2px solid #fff;
+  border: 5px solid #fff;
 }
 .mycalendar >>> .el-calendar-table td.is-today {
   color: black;
@@ -262,11 +281,11 @@ export default {
 .mybackground {
   position: absolute;
   transform: translateX(-3px) translateY(-3px);
-  height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-/* .mybackground:hover {
-  background-color: #dadcdd;
-} */
+
 .pop {
   display: flex;
   flex-direction: column;
